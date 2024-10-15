@@ -1,17 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd" version="6.0">
-<display-name>Sample Web Application</display-name>
-<!-- Welcome file list -->
-<welcome-file-list> 
-	<welcome-file>index.html</welcome-file> 
-	<welcome-file>/jsp/index.jsp</welcome-file>
-</welcome-file-list>
-<error-page>
-<error-code>404</error-code> 
-	<location>/error/404.html</location>
-	</error-page>
-<error-page>
-<error-code>503</error-code> 
-<location>/error/503.html</location>
-       </error-page>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:jsp="http://java.sun.com/xml/ns/javaee/jsp" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd" version="6.0">
+  <display-name>Sample Web Application</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>/jsp/index.jsp</welcome-file>
+  </welcome-file-list>
+  <error-page>
+    <error-code>404</error-code>
+    <location>/error/404.html</location>
+  </error-page>
+  <error-page>
+    <error-code>503</error-code>
+    <location>/error/503.html</location>
+  </error-page>
+  <error-page>
+    <exception-type>java.lang.Throwable</exception-type>
+    <location>/WEB-INF/view/error/error.jsp</location>
+  </error-page>
+  <jsp-config>
+    <taglib>
+      <taglib-uri>kr.ac.kku.cs.wp.demo.tools.tags.custom</taglib-uri>
+      <taglib-location>/WEB-INF/tlds/custom.tld</taglib-location>
+    </taglib>
+  </jsp-config>
+  <servlet>
+    <servlet-name>HelloServlet</servlet-name>
+    <servlet-class>kr.ac.kku.cs.wp.demo.HelloServlet</servlet-class>
+    <init-param>
+      <param-name>greeting</param-name>
+      <param-value>Hello, World from ServletConfig!</param-value>
+    </init-param>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>HelloServlet</servlet-name>
+    <url-pattern>/hello</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>UserControllerServlet</display-name>
+    <servlet-name>UserControllerServlet</servlet-name>
+    <servlet-class>kr.ac.kku.cs.wp.demo.user.UserControllerServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UserControllerServlet</servlet-name>
+    <url-pattern>/UserControllerServlet</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>LogoutServlet</display-name>
+    <servlet-name>LogoutServlet</servlet-name>
+    <servlet-class>kr.ac.kku.cs.wp.demo.aaa.LogoutServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>LogoutServlet</servlet-name>
+    <url-pattern>/LogoutServlet</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>BaseFilter</display-name>
+    <servlet-name>BaseFilter</servlet-name>
+    <servlet-class>kr.ac.kku.cs.wp.demo.support.servlet.BaseFilter</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>BaseFilter</servlet-name>
+    <url-pattern>/BaseFilter</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>AuthenticationFilter</display-name>
+    <servlet-name>AuthenticationFilter</servlet-name>
+    <servlet-class>kr.ac.kku.cs.wp.demo.aaa.AuthenticationFilter</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AuthenticationFilter</servlet-name>
+    <url-pattern>/AuthenticationFilter</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>AuthorityFilter</display-name>
+    <servlet-name>AuthorityFilter</servlet-name>
+    <servlet-class>kr.ac.kku.cs.wp.demo.aaa.AuthorityFilter</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AuthorityFilter</servlet-name>
+    <url-pattern>/AuthorityFilter</url-pattern>
+  </servlet-mapping>
+  <filter>
+    <filter-name>AuthenticationFilter</filter-name>
+    <filter-class>kr.ac.kku.cs.wp.demo.aaa.AuthenticationFilter</filter-class>
+    <init-param>
+      <param-name>valve</param-name>
+      <param-value>on</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>AuthenticationFilter</filter-name>
+    <url-pattern>/user/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>AuthenticationFilter</filter-name>
+    <url-pattern>/jsp/admin/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>AuthenticationFilter</filter-name>
+    <url-pattern>/logout</url-pattern>
+  </filter-mapping>
+  <filter>
+    <filter-name>AuthorityFilter</filter-name>
+    <filter-class>kr.ac.kku.cs.wp.demo.aaa.AuthorityFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>AuthorityFilter</filter-name>
+    <url-pattern>/jsp/admin/*</url-pattern>
+  </filter-mapping>
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
+  <servlet>
+    <description></description>
+    <display-name>HelloServletTest</display-name>
+    <servlet-name>HelloServletTest</servlet-name>
+    <servlet-class>kr.ac.kku.cs.wp.demo.HelloServletTest</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>HelloServletTest</servlet-name>
+    <url-pattern>/HelloServletTest</url-pattern>
+  </servlet-mapping>
 </web-app>
