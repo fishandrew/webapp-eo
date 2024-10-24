@@ -14,6 +14,11 @@ public class UserServiceImple implements UserService {
 
 	private UserDAO dao = new UserDAOHiberanteImpl();
 
+    // 추가: UserDAO를 설정할 수 있는 setter 메서드
+    public void setUserDAO(UserDAO dao) {
+        this.dao = dao;
+    }
+
 	@Override
 	public List<User> getUsers(User user) {
 		// TODOAuto-generatedmethodstub
