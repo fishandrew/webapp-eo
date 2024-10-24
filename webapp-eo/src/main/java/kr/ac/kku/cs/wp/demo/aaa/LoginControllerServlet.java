@@ -1,3 +1,20 @@
+/*
+ * 저작권 (c) 2024 어수혁 202020950 모든 권리 보유.
+ * 
+ * 이 소프트웨어는 고급웹로그래밍 중간고사 코딩 시험 제출용입니다.
+ * 이 소프트웨어는 개인적, 교육적 또는 비상업적 목적으로 자유롭게 사용할 수 있습니다.
+ * 상업적 사용을 위해서는 타인의 권리를 침해하지 않도록 주의해야 합니다.
+ * 
+ * 연락처: fishandrew01@naver.com
+ * 
+ * */
+/*
+ * LoginControllerServlet
+ * 
+ * @author 어수혁 202020950-1111
+ * @since 2024.10.24
+ * @version 1.0
+ * */
 package kr.ac.kku.cs.wp.demo.aaa;
 
 import jakarta.servlet.ServletConfig;
@@ -7,11 +24,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import kr.ac.kku.cs.wp.demo.tools.UserData;
-import kr.ac.kku.cs.wp.demo.user.User;
+import kr.ac.kku.cs.wp.demo.user.dao.UserDAO;
+import kr.ac.kku.cs.wp.demo.user.dao.UserDAOJdbcImpl;
+import kr.ac.kku.cs.wp.demo.user.entity.User;
+import kr.ac.kku.cs.wp.demo.aaa.Account;
 
 import java.io.IOException;
-import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,60 +40,56 @@ import org.apache.logging.log4j.Logger;
 public class LoginControllerServlet extends HttpServlet {
 	
 	private static final Logger logger = LogManager.getLogger(LoginControllerServlet.class);
+	private UserDAO userDAO;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		// TODO Auto-generated method stub
 		super.init(config);
+		userDAO = new UserDAOJdbcImpl();  // DAO 객체 초기화
 	}
 	
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-	
 		
 		String context = req.getServletContext().getContextPath();
 		String uriStr = req.getRequestURI().replaceAll(context, "");
 
-//		log("in post :" + uriStr);
+		logger.entry(); // 로그에 엔트리 남기기
 		
-		logger.entry(); //왜 안나옴?
-		
-		if (uriStr.equals("/login")) { // login
-			Map<String, User> users = UserData.getInstance().getData();
-
+		if (uriStr.equals("/login")) { // 로그인 처리
 			String id = req.getParameter("username");
 			String password = req.getParameter("password");
-			User user = users.get(id);
+			
+			User user = userDAO.getUserById(id); // UserDAO를 통해 사용자 정보 조회
+			
 			if (user == null) {
+				// 사용자가 존재하지 않을 경우
 				req.setAttribute("error", "login_fail");
 				req.getRequestDispatcher("/WEB-INF/view/auth/login.jsp").forward(req, resp);
 			} else {
-				log("Received password: " + password);
-				log("Stored password: " + user.getPassword());
+				// 비밀번호 비교
 				if (!password.equals(user.getPassword())) {
+					// 비밀번호가 일치하지 않음
 					req.setAttribute("error", "login_fail");
 					req.getRequestDispatcher("/WEB-INF/view/auth/login.jsp").forward(req, resp);
 				} else {
-					
-					// Account 객체 생성 후 세션에 저장
-	                Account account = new Account();
+					// 로그인 성공 처리
+					Account account = new Account();
 	                account.setId(user.getId());
-	                account.setRole(user.getRole());
+//	                account.setRole(user.getRole());
 	                account.setEmail(user.getEmail());
 	                account.setName(user.getName());
 
 	                HttpSession session = req.getSession();
 	                session.setAttribute("user", account); // Account 객체를 세션에 저장
-
-//					HttpSession session = req.getSession();
-//					session.setAttribute("user", user); // User 객체를 세션에 저장
-					logger.info("User {} logged in successfully", user.getId()); // 로그인 성공 로그 추가
+					
+					logger.info("User {} logged in successfully", user.getId()); // 로그인 성공 로그
 					resp.sendRedirect(context);
 				}
 			}
-		} else if (uriStr.equals("/logout")) { // logout
+		} else if (uriStr.equals("/logout")) { // 로그아웃 처리
 			HttpSession session = req.getSession();
 			if (session != null) {
 				session.invalidate();
@@ -91,11 +105,8 @@ public class LoginControllerServlet extends HttpServlet {
 		String context = req.getServletContext().getContextPath();
 		String uriStr = req.getRequestURI().replaceAll(context, "");
 
-		log("in service: " + uriStr);
-
 		if (uriStr.equals("/login")) {
 			req.getRequestDispatcher("/WEB-INF/view/auth/login.jsp").forward(req, resp);
 		}
 	}
-
 }
