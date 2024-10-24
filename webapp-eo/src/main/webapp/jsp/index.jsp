@@ -183,43 +183,133 @@ footer {
 	background-color: #0056b3;
 	color: white;
 }
+/* 모달 배경 스타일 */
+#modal-background {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5); /* 반투명한 검은색 배경 */
+	z-index: 999; /* z-index를 높여서 최상위에 위치 */
+}
+
+/* 모달 창 스타일 */
+#modal {
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%); /* 화면 중앙에 모달을 배치 */
+	background-color: white;
+	width: 400px;
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+	z-index: 1000; /* 모달 배경보다 앞에 위치 */
+	text-align: center;
+}
+
+#modal-content {
+	margin-bottom: 20px;
+}
+
+#modal-content h2 {
+	margin-bottom: 10px;
+}
+
+#modal-content p {
+	margin-bottom: 20px;
+}
+
+#modal-button {
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+}
+
+#modal-button:hover {
+	background-color: #0056b3;
+}
 </style>
 
 <script type="text/javascript" src="js/common.js"></script>
 <script>
-        // 페이지를 로드하고 카드를 동적으로 생성하는 함수
-        function loadPage(pageId, pageUrl) {
-            const mainContent = document.querySelector('main');
-            const existingPage = document.getElementById(pageId);
+//페이지를 로드하고 카드를 동적으로 생성하는 함수
+async function loadPage(pageId, pageUrl, reload = false) {
+    const mainContent = document.querySelector('main');
+    const existingPage = document.getElementById(pageId);
 
-            // 이미 로드된 페이지가 있으면 그 페이지를 활성화
-            /* if (existingPage) {
-                setActivePage(pageId);
-                return;
-            } */
-            
-            //삭제새로 로드(개발)
-            if (existingPage){
-            	existingPage.remove();
-            }	
-
-            // 새로운 page-card 생성
-            fetch(pageUrl)
-                .then(response => response.text())
-                .then(data => {
-                    const newPageCard = document.createElement('div');
-                    newPageCard.id = pageId;
-                    newPageCard.classList.add('page-card');
-                    newPageCard.innerHTML = data;
-                    mainContent.appendChild(newPageCard);
-                    setActivePage(pageId);
-                    adjustPaddingForHome(pageId); 
-                })
-                .catch(error => {
-                    console.error('페이지 로드 중 오류 발생:', error);
-                });
+    // 이미 로드된 페이지가 있으면 reload 조건에 따라 처리
+    if (existingPage) {
+        if (reload) {
+            existingPage.remove();
+        } else {
+            setActivePage(pageId);
+            return;
         }
-        
+    }
+
+    // POST 요청을 보내면서 파라미터를 전달
+    const response = await fetch(pageUrl, {
+        method: 'POST'
+    });
+    
+    const isOk = response.ok;
+    const data = await response.text();
+
+    if (!isOk) {
+        openModalFetch(data); // 오류 발생 시 모달창 호출
+    } else {
+        // 새로운 페이지 카드를 생성
+        const newPageCard = document.createElement('div');
+        newPageCard.id = pageId;
+        newPageCard.classList.add('page-card');
+        newPageCard.innerHTML = data;
+        mainContent.appendChild(newPageCard);
+        setActivePage(pageId);
+        adjustPaddingForHome(pageId);
+
+        // 페이지 내 script 태그 재실행 처리
+        const scripts = newPageCard.getElementsByTagName('script');
+        Array.from(scripts).forEach((script, i) => {
+            const scriptId = `${pageId}_script_${i}`;
+            const existingScript = document.getElementById(scriptId);
+            if (existingScript) existingScript.remove();
+
+            const newScript = document.createElement('script');
+            newScript.id = scriptId;
+            newScript.text = script.text;
+            document.body.appendChild(newScript);
+        });
+    }
+}
+
+//로컬에서 모달 창 열기
+function openModal(message) {
+    document.getElementById('modal-message').innerText = message;
+    document.getElementById('modal').style.display = 'block';
+    document.getElementById('modal-background').style.display = 'block';
+}
+
+// 모달 창 닫기
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+    document.getElementById('modal-background').style.display = 'none';
+}
+
+// Fetch 요청으로 모달 창 열기
+function openModalFetch(html) {
+    document.getElementById('modal').style.display = 'block';
+    document.getElementById('modal-content').innerHTML = html;
+    document.getElementById('modal-background').style.display = 'block';
+}
+
      // padding을 home 페이지일 때만 0으로 설정하는 함수
         function adjustPaddingForHome(pageId) {
             const pageElement = document.getElementById(pageId);
@@ -304,18 +394,18 @@ footer {
 				<ul>
 					<li><a href="#" onclick="loadPage( 'home', 'html/home.html')">HOME</a></li>
 					<%-- <c:if test="${not empty sessionScope.user}">--%>
-						<li><a href="#" onclick="toggleSubmenu ()">사용자 관리 </a></li>
-						<ul id="submenu" class="submenu">
-							<li><a href="#"
-								onclick="loadPage('userList', 'user/userlist')">사용자 목록 </a></li>
-							<li><a href="#"
-								onclick="loadPage('userForm', 'html/user-form.html')">사용자 입력
-							</a></li>
-						</ul>
-						<li><a href="#" onclick="loadPage('service', 'service.html')">서비스
+					<li><a href="#" onclick="toggleSubmenu ()">사용자 관리 </a></li>
+					<ul id="submenu" class="submenu">
+						<li><a href="#"
+							onclick="loadPage('userList', 'user/userlist')">사용자 목록 </a></li>
+						<li><a href="#"
+							onclick="loadPage('userForm', 'html/user-form.html')">사용자 입력
 						</a></li>
-						<li><a href="#" onclick="loadPage('contact', 'contact.html')">연락처
-						</a></li>
+					</ul>
+					<li><a href="#" onclick="loadPage('service', 'service.html')">서비스
+					</a></li>
+					<li><a href="#" onclick="loadPage('contact', 'contact.html')">연락처
+					</a></li>
 					<%--</c:if>--%>
 				</ul>
 			</nav>
@@ -327,6 +417,18 @@ footer {
 	</div>
 
 	<footer> © 2024 내 웹사이트 - 모든 권리 보유 </footer>
+	
+	<!-- 모달 배경 -->
+	<div id="modal-background"></div>
+
+	<!-- 모달 창 -->
+	<div id="modal">
+		<div id="modal-content">
+			<h2 id="modal-title">알림</h2>
+			<p id="modal-message">이것은 모달 팝업 메시지입니다.</p>
+		</div>
+		<button onclick="closeModal()">닫기</button>
+	</div>
 
 </body>
 </html>

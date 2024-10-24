@@ -20,8 +20,7 @@ body {
 	align-items: center;
 	height: 100vh; 
 	}
-.login-form { background-color : rgba( 255, 255, 255,
-	0.9); /* 투명도 있는 배경 */
+.login-form { background-color : rgba( 255, 255, 255, 0.9); /* 투명도 있는 배경 */
 	padding: 40px;
 	border-radius: 10px;
 	box-shadow: 0 0 15pxrgba(0, 0, 0, 0.1);
@@ -75,7 +74,7 @@ body {
 <body>
 	<div class="login-form">
 		<!-- 시스템 이름 -->
-		<!-- <h1>Webapp eo</h1> -->
+		<h1>Webapp eo</h1>
 		<!-- login form -->
 		<h2>Login</h2>
 		<!-- out error msg -->

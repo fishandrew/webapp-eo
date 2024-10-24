@@ -5,7 +5,7 @@
 <% 
 logger.error(pageContext.getErrorData().getThrowable().getMessage());
 response.setHeader("Error-Message", pageContext.getErrorData().getThrowable().getMessage()); 
-response.setStatus (200);
+//response.setStatus (200);
 %>
 <h2 id="modal-title">오류 메세지</h2>
 <p id="modal-message">${pageContext.errorData.throwable.message}</p>

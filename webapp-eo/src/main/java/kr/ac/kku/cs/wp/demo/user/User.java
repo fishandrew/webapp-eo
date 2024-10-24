@@ -6,9 +6,9 @@ public class User {
 	private String photoSRC= null;
 	private String name =null;
 	private String email =null;
-	private List<String> roles=null;
+	private List<String> userRole=null;
 	private String id =null;
-	private String password = "null";
+	private String password="null";
 	private String status = null;
 	private String role=null;
 	
@@ -32,10 +32,10 @@ public class User {
 		this.email = email;
 	}
 	public List<String> getRoles() {
-		return roles;
+		return userRole;
 	}
 	public void setRoles(List<String> roles) {
-		this.roles = roles;
+		this.userRole = roles;
 	}
 	public String getId() {
 		return id;

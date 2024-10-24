@@ -1,51 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
-	<Appenders>
-		<Console name="Console" target="SYSTEM_OUT">
-			<PatternLayout
-				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
-		</Console>
+    <Appenders>
+        <!-- 콘솔 출력용 Appender -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+        </Console>
 
-		<!-- 모든 로그 레벨 기록용 롤링 파일 Appender -->
-		<!-- tmp에 logs파일생성 필요 -->
-		<RollingFile name="RollingFileAppender"
-			fileName="/tmp/logs/app.log"
-			filePattern="/tmp/logs/app-%d{yyyy-MM-dd}-%i.log.gz">
-			<PatternLayout
-				pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger {36} - %msg%n" />
-			<Policies>
-				<TimeBasedTriggeringPolicy />
-				<SizeBasedTriggeringPolicy size="500MB" />
-			</Policies>
-			<!-- 압축된 로그 파일 최대 보관 갯수 설정 -->
-			<DefaultRolloverStrategy max="60" />
-		</RollingFile>
-		<!-- INFO 로그 전용 롤링 파일 Appender -->
-		<RollingFile name="InfoFileAppender"
-			fileName="/tmp/logs/info.log"
-			filePattern="/tmp/logs/info-%d{yyyy-MM-dd}.log.gz">
-			<PatternLayout
-				pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n" />
-			<Policies>
-				<TimeBasedTriggeringPolicy />
-			</Policies>
-			<Filters>
-				<!-- INFO 레벨 로그만 허용하는 필터 -->
-				<ThresholdFilter level="info" onMatch="ACCEPT"
-					onMismatch="DENY" />
-			</Filters>
-			<!-- 압축된 로그 파일 최대 보관 갯수 설정 -->
-			<DefaultRolloverStrategy max="60" />
-		</RollingFile>
-	</Appenders>
-	<Loggers>
-		<Root level="trace">
-			<AppenderRef ref="Console" />
-			<AppenderRef ref="RollingFileAppender" />
-		</Root>
-		<Logger name="kr.ac.kku.cs.wp.demo" level="info"> <!-- 로그를 남길 패키지 확인 -->
-			<AppenderRef ref="InfoFileAppender" />
-		</Logger>
-	</Loggers>
+        <!-- 모든 로그 파일 기록용 롤링 파일 Appender -->
+        <RollingFile name="RollingFileAppender"
+            fileName="/tmp/logs/app.log"
+            filePattern="/tmp/logs/app-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="500MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="60" />
+        </RollingFile>
 
+        <!-- INFO 레벨 로그 전용 롤링 파일 Appender -->
+        <RollingFile name="InfoFileAppender"
+            fileName="/tmp/logs/info.log"
+            filePattern="/tmp/logs/info-%d{yyyy-MM-dd}.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <!-- INFO 레벨 로그만 허용하는 필터 -->
+            <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY" />
+            <DefaultRolloverStrategy max="60" />
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- Demo 패키지에 대해서만 TRACE 레벨 이상 로그 출력 -->
+        <Logger name="kr.ac.kku.cs.wp.demo" level="trace" additivity="false">
+            <AppenderRef ref="InfoFileAppender"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- 나머지 모든 패키지는 FATAL 레벨 이상의 로그만 출력 -->
+        <Root level="fatal">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFileAppender"/>
+        </Root>
+    </Loggers>
 </Configuration>
